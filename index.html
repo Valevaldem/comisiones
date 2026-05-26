@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Simulador de Comisiones — Maria Salinas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --brand-dark: #6B5D54;
+    --brand-accent: #B8A89A;
+    --cream: #F7F3ED;
+    --highlight: #F5F0E8;
+    --bg-page: #FAF8F4;
+    --bg-card: #FFFFFF;
+    --bg-secondary: #F0EBE4;
+    --text-primary: #2C2926;
+    --text-secondary: #6B6259;
+    --text-tertiary: #998F84;
+    --border: #E5DED4;
+    --border-strong: #C8C0B7;
+    --success: #5C7D54;
+    --success-bg: #EEF2EB;
+    --danger: #C75D4D;
+    --danger-bg: #F7EBE9;
+    --warning: #B8924A;
+    --warning-bg: #F7EFE0;
+    --info: #5C7592;
+    --info-bg: #EBF0F5;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  
+  * { box-sizing: border-box; }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+  }
+  
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .brand {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--brand-dark);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  
+  .brand-sub {
+    font-size: 12px;
+    color: var(--brand-accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  
+  h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 4px;
+    color: var(--text-primary);
+  }
+  
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  h2 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 1.5rem 0 0.5rem;
+    color: var(--text-primary);
+  }
+  
+  .section-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 1rem;
+  }
+  
+  /* Pantalla de selección */
+  .selector-screen {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+  }
+  
+  .selector-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+  }
+  
+  .selector-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Fix para tap en iOS Safari */
+  button, .selector-btn {
+    -webkit-tap-highlight-color: rgba(107, 93, 84, 0.2);
+    -webkit-appearance: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+  
+  .selector-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    padding: 16px 32px;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    min-width: 140px;
+    height: auto;
+    transition: all 0.15s;
+  }
+  
+  .selector-btn:hover {
+    background: var(--cream);
+    border-color: var(--brand-dark);
+  }
+  
+  .selector-custom {
+    margin-top: 1rem;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .selector-custom input {
+    width: 200px;
+  }
+  
+  /* Sección activa */
+  .hidden { display: none; }
+  
+  .change-asesora {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--cream);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    font-size: 14px;
+  }
+  
+  .change-asesora .name-display {
+    font-weight: 500;
+    color: var(--brand-dark);
+  }
+  
+  /* Variables globales */
+  .global-card {
+    background: var(--cream);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+  }
+  
+  .global-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+  }
+  
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .field-row:last-child { margin-bottom: 0; }
+  
+  .field-row label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+  
+  input[type="number"], input[type="text"], select {
+    border: 1px solid var(--border-strong);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-family: inherit;
+    height: 36px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  
+  input[type="number"]:focus, input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--brand-dark);
+    box-shadow: 0 0 0 3px rgba(107, 93, 84, 0.1);
+  }
+  
+  .field-row input[type="number"], .field-row select {
+    width: 180px;
+  }
+  
+  button {
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, transform 0.05s;
+    height: 36px;
+  }
+  
+  button:hover { background: var(--cream); }
+  button:active { transform: scale(0.98); }
+  
+  /* Ventas section */
+  .ventas-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .ventas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .input-group label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  
+  .input-group .hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    font-size: 16px;
+  }
+  
+  /* Bono criterios */
+  .bono-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .bono-criterios {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .crit-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background 0.1s;
+    -webkit-tap-highlight-color: rgba(107, 93, 84, 0.1);
+    user-select: none;
+    -webkit-user-select: none;
+    min-height: 44px;
+  }
+  
+  .crit-row:hover {
+    background: var(--cream);
+  }
+  
+  .crit-row:active {
+    background: var(--cream);
+  }
+  
+  .crit-row input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 1px;
+    accent-color: var(--brand-dark);
+    pointer-events: none;
+  }
+  
+  .crit-row span {
+    color: var(--text-primary);
+    font-size: 14px;
+    flex: 1;
+    cursor: pointer;
+  }
+  
+  .crit-row .crit-num {
+    font-weight: 500;
+    color: var(--brand-dark);
+    margin-right: 4px;
+  }
+  
+  .bono-summary {
+    padding: 12px 16px;
+    background: var(--success-bg);
+    color: var(--success);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+  }
+  
+  .bono-summary.bono-medio {
+    background: var(--warning-bg);
+    color: var(--warning);
+  }
+  
+  .bono-summary.bono-cero {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+  }
+  
+  /* Resumen */
+  .summary-card {
+    background: var(--brand-dark);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    color: white;
+  }
+  
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+  }
+  
+  .metric {
+    text-align: center;
+  }
+  
+  .metric-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  
+  .metric-value {
+    font-size: 24px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: white;
+  }
+  
+  .metric.principal .metric-value {
+    font-size: 32px;
+    color: #F5E6D3;
+  }
+  
+  /* Disclaimer */
+  .disclaimer {
+    background: var(--warning-bg);
+    border-left: 3px solid var(--warning);
+    padding: 12px 16px;
+    margin-top: 1.5rem;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+  
+  .disclaimer strong {
+    color: var(--warning);
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  
+  /* Footer */
+  .footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+  
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page { padding: 1rem; }
+    .ventas-grid { grid-template-columns: 1fr; }
+    .field-row { flex-direction: column; align-items: stretch; gap: 4px; }
+    .field-row label { flex: none; }
+    .field-row input[type="number"], .field-row select { width: 100%; }
+    .selector-btn { width: 100%; }
+    .metric.principal .metric-value { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="header">
+    <div class="brand">MARIA SALINAS</div>
+    <div class="brand-sub">JOYERÍA</div>
+    <h1>Mi Simulador de Comisiones</h1>
+    <p class="subtitle">Calcula cuánto puedes ganar este mes</p>
+  </div>
+
+  <!-- PANTALLA DE SELECCIÓN -->
+  <div id="selector-screen" class="selector-screen">
+    <div class="selector-title">¿Quién eres?</div>
+    <div class="selector-buttons">
+      <button class="selector-btn" data-name="Fer">Fer</button>
+      <button class="selector-btn" data-name="Dennise">Dennise</button>
+    </div>
+    <div class="selector-custom">
+      <span style="font-size: 13px; color: var(--text-secondary);">o escribe tu nombre:</span>
+      <input type="text" id="custom-name" placeholder="Tu nombre" />
+      <button id="custom-name-btn">Continuar <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- PANTALLA PRINCIPAL -->
+  <div id="main-screen" class="hidden">
+    
+    <!-- Cambiar asesora -->
+    <div class="change-asesora">
+      <span>Simulando para: <span class="name-display" id="current-name">—</span></span>
+      <button id="change-btn"><i class="ti ti-refresh"></i> Cambiar</button>
+    </div>
+
+    <!-- Ventas -->
+    <h2>Ventas del mes</h2>
+    <div class="ventas-card">
+      <div class="ventas-grid">
+        <div class="input-group">
+          <label>Tu venta individual (sin IVA)</label>
+          <input type="number" id="mi-venta" value="0" min="0" step="1000" />
+          <span class="hint">Lo que tú vendiste este mes</span>
+        </div>
+        <div class="input-group">
+          <label>Venta de tu compañera (sin IVA)</label>
+          <input type="number" id="otra-venta" value="0" min="0" step="1000" />
+          <span class="hint">Para calcular el grupal del equipo</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variables globales -->
+    <h2>Condiciones del mes</h2>
+    <div class="global-card">
+      <div class="field-row">
+        <label>¿Cumpliste puntualidad?</label>
+        <select id="puntualidad">
+          <option value="true">Sí cumplí</option>
+          <option value="false">No cumplí</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>Auditoría de mensajes</label>
+        <select id="auditoria">
+          <option value="ok">Aprobada (grupal 100%)</option>
+          <option value="fallo">Falló (grupal 50%)</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>¿Tienda superó año pasado?</label>
+        <select id="anio-pasado">
+          <option value="1">Sí</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>¿Se alcanzó meta del 20%?</label>
+        <select id="meta-20">
+          <option value="0">No</option>
+          <option value="1">Sí</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Criterios bono -->
+    <h2>Bono Equipo — Tu autoevaluación</h2>
+    <p class="section-sub">Marca los criterios que cumpliste este mes</p>
+    <div class="bono-card">
+      <div class="bono-criterios" id="criterios-list"></div>
+      <div class="bono-summary" id="bono-summary">
+        <span>0/8 criterios cumplidos</span>
+        <span>Sin bono (0%)</span>
+      </div>
+    </div>
+
+    <!-- Resumen -->
+    <h2>Tu resumen</h2>
+    <div class="summary-card">
+      <div class="summary-grid">
+        <div class="metric">
+          <div class="metric-label">Venta total grupal</div>
+          <div class="metric-value" id="total-grupal">$0</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">% Comisión efectiva</div>
+          <div class="metric-value" id="pct-efectivo">0.00%</div>
+        </div>
+        <div class="metric principal">
+          <div class="metric-label">Tu comisión del mes</div>
+          <div class="metric-value" id="total-comision">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <strong><i class="ti ti-info-circle"></i> Importante sobre el pago</strong>
+      El monto a pagar este mes corresponde únicamente a las <strong style="display:inline;">ventas liquidadas</strong> dentro del periodo (del 1 al 30 o 31 según el mes). Las ventas que aún no estén liquidadas se pasan automáticamente al siguiente corte una vez que el cliente haya completado el pago. El cálculo mostrado arriba es una estimación basada en los datos que capturaste.
+    </div>
+
+    <div class="footer">
+      Simulador personal · Maria Salinas Joyería · Estructura v8
+    </div>
+  </div>
+</div>
+
+<script>
+// ============= TABLAS =============
+const TABLA_INDIVIDUAL = [
+  { umbral: 1500000, pct: 0.039 },
+  { umbral: 1300000, pct: 0.0345 },
+  { umbral: 1100000, pct: 0.030 },
+  { umbral: 900000, pct: 0.0255 },
+  { umbral: 700000, pct: 0.0205 },
+  { umbral: 500000, pct: 0.014 },
+  { umbral: 350001, pct: 0.007 },
+  { umbral: 0, pct: 0 }
+];
+
+const TABLA_GRUPAL = [
+  { umbral: 2500000, pct: 0.033 },
+  { umbral: 2300000, pct: 0.030 },
+  { umbral: 2000000, pct: 0.027 },
+  { umbral: 1700000, pct: 0.024 },
+  { umbral: 1300000, pct: 0.018 },
+  { umbral: 1000001, pct: 0.012 },
+  { umbral: 0, pct: 0 }
+];
+
+const CRITERIOS_BONO = [
+  'Vine mínimo 2 sábados completos o 4 medios turnos',
+  'No acumulé llamadas de atención por mantenimiento de boutique',
+  'Comuniqué situaciones con mis compañeras de manera constructiva',
+  'No tomé más de 1 día de vacaciones en el mes',
+  'Trabajé voluntariamente en domingo de temporada alta (cuando se requirió)',
+  'No tuve incidencias (ni menores, medias o graves)',
+  'Apoyé a mi(s) compañera(s) cuando se requirió',
+  'Trabajé en mancuerna con mi compañera durante el mes'
+];
+
+function lookupPct(tabla, valor) {
+  for (const banda of tabla) {
+    if (valor >= banda.umbral) return banda.pct;
+  }
+  return 0;
+}
+
+function fmt(n) {
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+
+function fmtPct(n) {
+  return (n * 100).toFixed(2) + '%';
+}
+
+// ============= ESTADO =============
+let nombreAsesora = '';
+let criteriosBono = Array(8).fill(false);
+
+// ============= SELECTOR =============
+function iniciarSimulador(nombre) {
+  nombreAsesora = nombre;
+  document.getElementById('current-name').textContent = nombre;
+  document.getElementById('selector-screen').classList.add('hidden');
+  document.getElementById('main-screen').classList.remove('hidden');
+  renderCriterios();
+  recalcular();
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('.selector-btn').forEach(btn => {
+  const handler = (e) => {
+    e.preventDefault();
+    iniciarSimulador(btn.dataset.name);
+  };
+  btn.addEventListener('click', handler);
+  btn.addEventListener('touchend', handler);
+});
+
+document.getElementById('custom-name-btn').addEventListener('click', (e) => {
+  e.preventDefault();
+  const nombre = document.getElementById('custom-name').value.trim();
+  if (nombre) iniciarSimulador(nombre);
+});
+
+document.getElementById('custom-name-btn').addEventListener('touchend', (e) => {
+  e.preventDefault();
+  const nombre = document.getElementById('custom-name').value.trim();
+  if (nombre) iniciarSimulador(nombre);
+});
+
+document.getElementById('custom-name').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const nombre = e.target.value.trim();
+    if (nombre) iniciarSimulador(nombre);
+  }
+});
+
+const cambiarHandler = (e) => {
+  e.preventDefault();
+  document.getElementById('main-screen').classList.add('hidden');
+  document.getElementById('selector-screen').classList.remove('hidden');
+  document.getElementById('custom-name').value = '';
+  criteriosBono = Array(8).fill(false);
+  document.getElementById('mi-venta').value = 0;
+  document.getElementById('otra-venta').value = 0;
+  window.scrollTo(0, 0);
+};
+document.getElementById('change-btn').addEventListener('click', cambiarHandler);
+document.getElementById('change-btn').addEventListener('touchend', cambiarHandler);
+
+// ============= CRITERIOS =============
+function renderCriterios() {
+  const list = document.getElementById('criterios-list');
+  list.innerHTML = CRITERIOS_BONO.map((texto, i) => `
+    <div class="crit-row" data-idx="${i}">
+      <input type="checkbox" id="crit-${i}" ${criteriosBono[i] ? 'checked' : ''} />
+      <span><span class="crit-num">${i + 1}.</span>${texto}</span>
+    </div>
+  `).join('');
+  
+  document.querySelectorAll('.crit-row').forEach(row => {
+    const handler = (e) => {
+      e.preventDefault();
+      const idx = parseInt(row.dataset.idx);
+      const cb = document.getElementById('crit-' + idx);
+      cb.checked = !cb.checked;
+      criteriosBono[idx] = cb.checked;
+      recalcular();
+    };
+    row.addEventListener('click', handler);
+    row.addEventListener('touchend', handler);
+  });
+}
+
+// ============= CÁLCULO =============
+function recalcular() {
+  const miVenta = parseFloat(document.getElementById('mi-venta').value) || 0;
+  const otraVenta = parseFloat(document.getElementById('otra-venta').value) || 0;
+  const ventaGrupal = miVenta + otraVenta;
+  
+  const puntualidad = document.getElementById('puntualidad').value === 'true';
+  const auditoria = document.getElementById('auditoria').value;
+  const anioPasado = document.getElementById('anio-pasado').value === '1';
+  const meta20 = document.getElementById('meta-20').value === '1';
+  
+  // Individual
+  const pctInd = lookupPct(TABLA_INDIVIDUAL, miVenta);
+  const compInd = miVenta * pctInd;
+  
+  // Grupal (con auditoría)
+  let pctGrup = lookupPct(TABLA_GRUPAL, ventaGrupal);
+  if (auditoria === 'fallo') pctGrup = pctGrup * 0.5;
+  const compGrup = miVenta * pctGrup;
+  
+  // Extras
+  const extraPunt = puntualidad ? miVenta * 0.002 : 0;
+  const extraAnio = anioPasado ? miVenta * 0.002 : 0;
+  const extraMeta = meta20 ? miVenta * 0.005 : 0;
+  
+  // Bono Equipo
+  const cumplidos = criteriosBono.filter(Boolean).length;
+  let pctBono = 0;
+  if (cumplidos >= 6) pctBono = 0.005;
+  else if (cumplidos >= 4) pctBono = 0.0025;
+  const bonoEquipo = miVenta * pctBono;
+  
+  const total = compInd + compGrup + extraPunt + extraAnio + extraMeta + bonoEquipo;
+  
+  // Resumen visual
+  document.getElementById('total-grupal').textContent = fmt(ventaGrupal);
+  document.getElementById('pct-efectivo').textContent = miVenta > 0 ? fmtPct(total / miVenta) : '0.00%';
+  document.getElementById('total-comision').textContent = fmt(total);
+  
+  // Bono summary
+  const bonoSummary = document.getElementById('bono-summary');
+  let bonoClass = 'bono-summary';
+  let bonoText = 'Sin bono (0%)';
+  if (pctBono === 0.005) {
+    bonoText = 'Bono completo (0.50%)';
+  } else if (pctBono === 0.0025) {
+    bonoClass = 'bono-summary bono-medio';
+    bonoText = 'Medio bono (0.25%)';
+  } else {
+    bonoClass = 'bono-summary bono-cero';
+  }
+  bonoSummary.className = bonoClass;
+  bonoSummary.innerHTML = `<span>${cumplidos}/8 criterios cumplidos</span><span>${bonoText}</span>`;
+}
+
+// Bind inputs
+['mi-venta', 'otra-venta', 'puntualidad', 'auditoria', 'anio-pasado', 'meta-20'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recalcular);
+  document.getElementById(id).addEventListener('change', recalcular);
+});
+</script>
+
+</body>
+</html>
